@@ -2,7 +2,7 @@ name: Build Native Android APK & AAB (Zero-Chrome Game Engine)
 
 on:
   push:
-    branches: [main]
+    branches: [main, 'v0/**']
   workflow_dispatch:
 
 env:
