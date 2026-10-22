@@ -1,29 +1,13 @@
 [
   {
-    "relation": [
-      "delegate_permission/common.handle_all_urls",
-      "delegate_permission/common.get_login_creds"
-    ],
+    "relation": ["delegate_permission/common.handle_all_urls"],
     "target": {
       "namespace": "android_app",
       "package_name": "com.theumaircode.ludowar",
       "sha256_cert_fingerprints": [
+        "53:90:8D:8E:FE:4E:4E:01:B7:DF:9E:C0:A9:4F:47:54:D5:B9:D1:0A:BA:FF:33:14:FD:71:EA:42:92:9B:A6:41",
         "9C:01:0D:99:C3:79:92:EF:EA:41:30:70:86:F4:15:6B:61:B1:66:A4:C0:87:8B:FE:98:C9:75:D9:8D:42:72:15",
-        "80:28:6B:5E:7E:A0:23:51:3E:BB:D7:E9:3B:F8:BE:B8:90:4C:41:5A:E5:9A:6E:D8:0A:C8:6C:43:AE:8D:60:04"
-      ]
-    }
-  },
-  {
-    "relation": [
-      "delegate_permission/common.handle_all_urls",
-      "delegate_permission/common.get_login_creds"
-    ],
-    "target": {
-      "namespace": "android_app",
-      "package_name": "com.theumaircode.ludoempire",
-      "sha256_cert_fingerprints": [
-        "9C:01:0D:99:C3:79:92:EF:EA:41:30:70:86:F4:15:6B:61:B1:66:A4:C0:87:8B:FE:98:C9:75:D9:8D:42:72:15",
-        "80:28:6B:5E:7E:A0:23:51:3E:BB:D7:E9:3B:F8:BE:B8:90:4C:41:5A:E5:9A:6E:D8:0A:C8:6C:43:AE:8D:60:04"
+        "80:28:6B:5E:8C:6E:55:F9:C4:65:BB:74:D6:86:70:61:B1:28:11:39:F4:5A:C2:6D:9D:FE:3C:63:77:B2:7C:A3"
       ]
     }
   }
