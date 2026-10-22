@@ -1,0 +1,128 @@
+name: Build Native Android APK & AAB (Zero-Chrome Game Engine)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-native-android:
+    name: Compile True Native Fullscreen APK & Play Store AAB
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout LUDO WAR Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22 & pnpm
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install pnpm
+        run: npm install -g pnpm@10
+
+      - name: Setup Java 21 (Required for Android Gradle & Capacitor)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Dependencies & Capacitor Native Engine
+        run: |
+          pnpm install --no-frozen-lockfile
+          pnpm add -D @capacitor/cli@^7.0.0
+          pnpm add @capacitor/core@^7.0.0 @capacitor/android@^7.0.0
+
+      - name: Build Self-Contained Offline LUDO WAR Bundle
+        env:
+          CAPACITOR_BUILD: 'true'
+        run: pnpm build
+
+      - name: Generate Native Android Project
+        run: |
+          npx cap add android
+          npx cap sync android
+
+      - name: Configure PUBG / Clash of Clans True Immersive Fullscreen Activity (Zero Chrome / Zero URL Bar)
+        run: |
+          MAIN_ACT="android/app/src/main/java/com/theumaircode/ludowar/MainActivity.java"
+          mkdir -p "$(dirname "$MAIN_ACT")"
+          cat << 'EOF' > "$MAIN_ACT"
+          package com.theumaircode.ludowar;
+
+          import android.os.Bundle;
+          import android.view.View;
+          import android.view.WindowManager;
+          import androidx.core.view.WindowCompat;
+          import androidx.core.view.WindowInsetsCompat;
+          import androidx.core.view.WindowInsetsControllerCompat;
+          import com.getcapacitor.BridgeActivity;
+
+          public class MainActivity extends BridgeActivity {
+              @Override
+              protected void onCreate(Bundle savedInstanceState) {
+                  super.onCreate(savedInstanceState);
+                  getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                  enableImmersiveGameMode();
+              }
+
+              @Override
+              public void onWindowFocusChanged(boolean hasFocus) {
+                  super.onWindowFocusChanged(hasFocus);
+                  if (hasFocus) {
+                      enableImmersiveGameMode();
+                  }
+              }
+
+              private void enableImmersiveGameMode() {
+                  WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+                  View decorView = getWindow().getDecorView();
+                  WindowInsetsControllerCompat controller = new WindowInsetsControllerCompat(getWindow(), decorView);
+                  controller.hide(WindowInsetsCompat.Type.systemBars());
+                  controller.setSystemBarsBehavior(
+                      WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                  );
+              }
+          }
+          EOF
+
+      - name: Lock Portrait Game Orientation & Fullscreen Theme in AndroidManifest.xml
+        run: |
+          sed -i 's/android:configChanges="/android:screenOrientation="portrait" android:configChanges="/g' android/app/src/main/AndroidManifest.xml
+
+      - name: Generate Release Keystore & Sign Native APK + Play Store AAB
+        run: |
+          keytool -genkeypair -v \
+            -keystore android/app/signing.keystore \
+            -alias my-key-alias \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -storepass "t3_hf8pD2N_C" \
+            -keypass "t3_hf8pD2N_C" \
+            -dname "CN=LUDO WAR ADMIN, OU=Gaming, O=THE UMAIR CODE, C=US"
+
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleRelease bundleRelease \
+            -Pandroid.injected.signing.store.file="$(pwd)/app/signing.keystore" \
+            -Pandroid.injected.signing.store.password="t3_hf8pD2N_C" \
+            -Pandroid.injected.signing.key.alias="my-key-alias" \
+            -Pandroid.injected.signing.key.password="t3_hf8pD2N_C"
+
+      - name: Prepare Signed Release Packages
+        run: |
+          mkdir -p release-output
+          cp android/app/build/outputs/apk/release/*.apk release-output/LUDO-WAR-Native-Release.apk
+          cp android/app/build/outputs/bundle/release/*.aab release-output/LUDO-WAR-PlayStore-Release.aab
+
+      - name: Upload Ready-to-Install Native APK & AAB Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: LUDO-WAR-Native-Android-Packages
+          path: release-output/*
+          retention-days: 90
