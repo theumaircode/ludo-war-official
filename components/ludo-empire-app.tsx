@@ -567,8 +567,8 @@ export function LudoEmpireApp() {
       {/* 3. TOP TACTICAL COMMAND HUD BAR — Fits 100% Within Every Mobile & Tablet Width */}
       <header className="relative z-20 w-full px-2 sm:px-6 py-1.5 sm:py-2 bg-gradient-to-b from-black/95 via-black/85 to-transparent border-b border-amber-500/25 shrink-0">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-1.5">
-          {/* Left: Official Game App Icon & Complete LUDO WAR® Brand Title */}
-          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+          {/* Left: Official Game App Icon & Clean LUDO WAR® Title */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <div className="relative w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl overflow-hidden border-2 border-amber-400 bg-black shadow-[0_0_14px_rgba(245,158,11,0.5)] shrink-0">
               <img
                 src="/images/game-icon.jpg"
@@ -576,18 +576,13 @@ export function LudoEmpireApp() {
                 className="w-full h-full object-cover"
               />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="font-display font-black text-sm sm:text-xl md:text-2xl tracking-[0.08em] sm:tracking-[0.12em] text-amber-100 whitespace-nowrap drop-shadow-[0_2px_10px_rgba(245,158,11,0.45)] leading-tight">
-                  LUDO WAR®
-                </h1>
-                <span className="hidden md:inline-block px-2 py-0.5 text-[9px] font-display font-bold tracking-widest uppercase rounded bg-amber-500/20 border border-amber-400/40 text-amber-300 whitespace-nowrap">
-                  UNIVERSE RING EDITION
-                </span>
-              </div>
-              <div className="text-[8px] sm:text-[10px] font-display font-bold tracking-widest uppercase text-amber-400/90 whitespace-nowrap leading-none">
-                THE UMAIR CODE
-              </div>
+            <div className="flex items-center gap-2.5">
+              <h1 className="font-display font-black text-base sm:text-2xl md:text-3xl tracking-[0.1em] sm:tracking-[0.14em] text-amber-100 whitespace-nowrap drop-shadow-[0_2px_12px_rgba(245,158,11,0.5)] leading-none">
+                LUDO WAR®
+              </h1>
+              <span className="hidden md:inline-block px-2 py-0.5 text-[9px] font-display font-bold tracking-widest uppercase rounded bg-amber-500/20 border border-amber-400/40 text-amber-300 whitespace-nowrap">
+                UNIVERSE RING EDITION
+              </span>
             </div>
           </div>
 
@@ -1133,11 +1128,18 @@ export function LudoEmpireApp() {
 
                 <div>
                   <span className="block text-[10px] font-display font-bold uppercase tracking-widest text-amber-300 mb-1.5">
-                    PREVIEW FACTION COLOR
+                    PREVIEW FULL-BODY FACTION COLOR
                   </span>
-                  <div className="grid grid-cols-4 gap-1.5">
+                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5">
                     {(
-                      ['crimson', 'emerald', 'sapphire', 'gold'] as FactionId[]
+                      [
+                        'crimson',
+                        'emerald',
+                        'sapphire',
+                        'gold',
+                        'amethyst',
+                        'cyan',
+                      ] as FactionId[]
                     ).map((fId) => {
                       const f = FACTIONS[fId]
                       const active = inspectedFaction === fId
@@ -1156,7 +1158,7 @@ export function LudoEmpireApp() {
                           }`}
                         >
                           <span
-                            className="w-2.5 h-2.5 rounded-full shrink-0"
+                            className="w-2.5 h-2.5 rounded-full shrink-0 border border-white/60"
                             style={{ backgroundColor: f.primaryHex }}
                           />
                           {f.colorName}
@@ -1253,18 +1255,26 @@ export function LudoEmpireApp() {
                             {skin.subtitle}
                           </p>
                           <div className="grid grid-cols-4 gap-1 mb-2 bg-black/60 p-1.5 rounded-lg border border-white/10">
-                            {SCULPTED_PIECES.map((sc) => (
-                              <div
-                                key={sc.id}
-                                className="h-10 flex items-center justify-center"
-                              >
-                                <SculptedChessPiece3D
-                                  sculptType={sc.id}
-                                  faction="crimson"
-                                  skinId={skin.id}
-                                />
-                              </div>
-                            ))}
+                            {SCULPTED_PIECES.map((sc, idx) => {
+                              const previewFactions: FactionId[] = [
+                                'crimson',
+                                'emerald',
+                                'sapphire',
+                                'gold',
+                              ]
+                              return (
+                                <div
+                                  key={sc.id}
+                                  className="h-10 flex items-center justify-center"
+                                >
+                                  <SculptedChessPiece3D
+                                    sculptType={sc.id}
+                                    faction={previewFactions[idx % 4]}
+                                    skinId={skin.id}
+                                  />
+                                </div>
+                              )
+                            })}
                           </div>
                         </div>
                         <button
@@ -1379,17 +1389,19 @@ export function LudoEmpireApp() {
                               borderColor: skin.goldTrim,
                             }}
                           >
-                            {['Α', 'Ω', 'Δ', 'Σ'].map((r, i) => (
+                            {[0, 1, 2, 3].map((i) => (
                               <span
                                 key={i}
-                                className="w-6 h-6 rounded border flex items-center justify-center font-serif font-bold text-xs"
+                                className="w-6 h-6 rounded border flex items-center justify-center"
                                 style={{
                                   backgroundColor: skin.tileBase,
                                   borderColor: skin.tileBorder,
-                                  color: skin.runeColor,
                                 }}
                               >
-                                {r}
+                                <span
+                                  className="w-2 h-2 rotate-45 block"
+                                  style={{ backgroundColor: skin.runeColor }}
+                                />
                               </span>
                             ))}
                           </div>

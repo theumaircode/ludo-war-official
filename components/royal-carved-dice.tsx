@@ -14,13 +14,39 @@ interface RoyalCarvedDiceProps {
   showLabel?: boolean
 }
 
-const PIP_LAYOUTS: Record<number, number[]> = {
-  1: [4],
-  2: [0, 8],
-  3: [0, 4, 8],
-  4: [0, 2, 6, 8],
-  5: [0, 2, 4, 6, 8],
-  6: [0, 2, 3, 5, 6, 8],
+// Exact mathematical SVG coordinates on a 100x100 die face so pips NEVER touch or blur
+const PIP_COORDS: Record<number, [number, number][]> = {
+  1: [[50, 50]],
+  2: [
+    [29, 29],
+    [71, 71],
+  ],
+  3: [
+    [28, 28],
+    [50, 50],
+    [72, 72],
+  ],
+  4: [
+    [29, 29],
+    [71, 29],
+    [29, 71],
+    [71, 71],
+  ],
+  5: [
+    [28, 28],
+    [72, 28],
+    [50, 50],
+    [28, 72],
+    [72, 72],
+  ],
+  6: [
+    [31, 24],
+    [69, 24],
+    [31, 50],
+    [69, 50],
+    [31, 76],
+    [69, 76],
+  ],
 }
 
 export function RoyalCarvedDice({
@@ -34,7 +60,7 @@ export function RoyalCarvedDice({
   showLabel = true,
 }: RoyalCarvedDiceProps) {
   const skin = DICE_SKINS[skinId] || DICE_SKINS['ruby-diamond']
-  const pips = PIP_LAYOUTS[value] || PIP_LAYOUTS[6]
+  const coords = PIP_COORDS[value] || PIP_COORDS[6]
 
   const dimensions =
     size === 'lg'
@@ -43,23 +69,18 @@ export function RoyalCarvedDice({
         ? 'w-14 h-14 sm:w-16 sm:h-16'
         : size === 'sm'
           ? 'w-11 h-11 sm:w-12 sm:h-12'
-          : 'w-9 h-9 sm:w-10 sm:h-10'
+          : 'w-10 h-10 sm:w-11 sm:h-11'
 
-  const pipSize =
-    size === 'lg'
-      ? 'w-3 h-3 sm:w-3.5 sm:h-3.5'
-      : size === 'md'
-        ? 'w-2.5 h-2.5 sm:w-3 sm:h-3'
-        : 'w-2 h-2 sm:w-2.5 sm:h-2.5'
+  const pipRadius = value === 1 ? 10.5 : 8.2
 
   return (
     <div className="relative flex flex-col items-center select-none shrink-0">
-      {/* Active turn pulsing halo beneath the Cosmic Dice */}
+      {/* Subtle turn halo beneath the Dice (kept outside the die face so pips stay razor-sharp) */}
       {canRoll && (
         <div
-          className="absolute -inset-2 rounded-2xl blur-md animate-pulse-aura pointer-events-none"
+          className="absolute -inset-1.5 rounded-2xl blur-sm animate-pulse-aura pointer-events-none"
           style={{
-            background: `radial-gradient(circle, ${activeFactionColor}bb 0%, transparent 72%)`,
+            background: `radial-gradient(circle, ${activeFactionColor}99 0%, transparent 72%)`,
           }}
         />
       )}
@@ -69,110 +90,81 @@ export function RoyalCarvedDice({
         disabled={!canRoll || isRolling}
         onClick={onRoll}
         aria-label={`Roll Cosmic Dice, current value ${value}`}
-        className={`relative ${dimensions} rounded-[26%] p-1 sm:p-1.5 transition-all duration-300 ${
+        className={`relative ${dimensions} rounded-[22%] p-0.5 transition-all duration-300 ${
           canRoll
-            ? 'cursor-pointer hover:scale-108 active:scale-95 ring-2 ring-amber-300'
+            ? 'cursor-pointer hover:scale-105 active:scale-95 ring-2 ring-amber-300'
             : 'cursor-default opacity-95'
         } ${isRolling ? 'animate-spin' : ''}`}
         style={{
           background: skin.frameGradient,
           boxShadow: canRoll
-            ? `0 8px 22px rgba(0,0,0,0.9), 0 0 18px ${activeFactionColor}99, inset 0 2px 3px rgba(255,255,255,0.65)`
-            : '0 6px 14px rgba(0,0,0,0.85), inset 0 1px 2px rgba(255,255,255,0.35)',
+            ? `0 6px 16px rgba(0,0,0,0.92), 0 0 10px ${activeFactionColor}66, inset 0 1px 2px rgba(255,255,255,0.65)`
+            : '0 4px 12px rgba(0,0,0,0.88), inset 0 1px 2px rgba(255,255,255,0.35)',
         }}
       >
-        {/* Planetary Rings / Meteor Cracks / Pulsar Motif Overlay */}
         <svg
           viewBox="0 0 100 100"
-          className="absolute inset-0 w-full h-full pointer-events-none opacity-90"
+          className="w-full h-full block pointer-events-none select-none"
         >
+          {/* Outer Bevel Trim */}
           <rect
-            x="4"
-            y="4"
-            width="92"
-            height="92"
-            rx="24"
-            fill="none"
+            x="3"
+            y="3"
+            width="94"
+            height="94"
+            rx="20"
+            fill="#070a12"
             stroke={skin.ringAccent}
-            strokeWidth="1.6"
-            strokeOpacity="0.65"
+            strokeWidth="2.5"
           />
 
-          {skin.planetTheme === 'saturn' && (
-            <ellipse
-              cx="50"
-              cy="50"
-              rx="46"
-              ry="16"
-              transform="rotate(-24 50 50)"
-              fill="none"
-              stroke="#fef08a"
-              strokeWidth="2.2"
-              strokeDasharray="6 3"
-              opacity="0.75"
-            />
-          )}
+          {/* Inner Die Face Chamber */}
+          <rect
+            x="8"
+            y="8"
+            width="84"
+            height="84"
+            rx="16"
+            fill="#0b0f1c"
+            stroke="rgba(255,255,255,0.22)"
+            strokeWidth="1.4"
+          />
 
-          {skin.planetTheme === 'meteor' && (
-            <path
-              d="M15,20 L38,42 L28,72 M85,24 L62,48 L78,82 M38,42 L62,48"
-              stroke="#f97316"
-              strokeWidth="2"
-              fill="none"
-              strokeLinecap="round"
-              opacity="0.8"
-            />
-          )}
+          {/* Subtle Corner Rivets */}
+          <circle cx="14" cy="14" r="1.8" fill={skin.ringAccent} opacity="0.7" />
+          <circle cx="86" cy="14" r="1.8" fill={skin.ringAccent} opacity="0.7" />
+          <circle cx="14" cy="86" r="1.8" fill={skin.ringAccent} opacity="0.7" />
+          <circle cx="86" cy="86" r="1.8" fill={skin.ringAccent} opacity="0.7" />
 
-          {skin.planetTheme === 'black-hole' && (
-            <circle
-              cx="50"
-              cy="50"
-              r="42"
-              fill="none"
-              stroke="#c084fc"
-              strokeWidth="2"
-              strokeDasharray="3 4"
-            />
-          )}
-
-          <circle cx="14" cy="14" r="2.2" fill={skin.ringAccent} />
-          <circle cx="86" cy="14" r="2.2" fill={skin.ringAccent} />
-          <circle cx="14" cy="86" r="2.2" fill={skin.ringAccent} />
-          <circle cx="86" cy="86" r="2.2" fill={skin.ringAccent} />
+          {/* Razor-Sharp Precision Pips (Zero Blur, Zero Overlap) */}
+          {coords.map(([cx, cy], idx) => (
+            <g key={idx}>
+              {/* Crisp Dark Recessed Socket Ring for Maximum Contrast */}
+              <circle
+                cx={cx}
+                cy={cy}
+                r={pipRadius + 2.2}
+                fill="#000000"
+              />
+              {/* Solid High-Contrast Pip */}
+              <circle
+                cx={cx}
+                cy={cy}
+                r={pipRadius}
+                fill="#ffffff"
+                stroke={skin.ringAccent}
+                strokeWidth="1.4"
+              />
+              {/* Crisp Specular Highlight Dot */}
+              <circle
+                cx={cx - pipRadius * 0.28}
+                cy={cy - pipRadius * 0.28}
+                r={pipRadius * 0.24}
+                fill="#ffffff"
+              />
+            </g>
+          ))}
         </svg>
-
-        {/* Recessed Planetary / Meteor Core with Starlight Pips */}
-        <div
-          className="relative w-full h-full rounded-full p-1.5 sm:p-2 grid grid-cols-3 grid-rows-3 gap-0.5 items-center justify-items-center border"
-          style={{
-            background: skin.coreBg,
-            borderColor: `${skin.ringAccent}66`,
-            boxShadow:
-              'inset 0 4px 10px rgba(0,0,0,0.92), 0 1px 2px rgba(255,255,255,0.35)',
-          }}
-        >
-          {Array.from({ length: 9 }).map((_, idx) => {
-            const hasPip = pips.includes(idx)
-            return (
-              <div
-                key={idx}
-                className="w-full h-full flex items-center justify-center"
-              >
-                {hasPip && (
-                  <div
-                    className={`${pipSize} rounded-full relative flex items-center justify-center`}
-                    style={{
-                      background: `radial-gradient(circle at 35% 35%, #ffffff 0%, ${skin.pipColor} 55%, ${skin.ringAccent} 100%)`,
-                      boxShadow: `0 0 7px ${skin.pipGlow}, inset 0 0 2px #ffffff`,
-                      border: '1px solid rgba(255, 255, 255, 0.85)',
-                    }}
-                  />
-                )}
-              </div>
-            )
-          })}
-        </div>
       </button>
 
       {showLabel && canRoll && !isRolling && (
