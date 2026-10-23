@@ -34,7 +34,7 @@ export function SculptedPieceToken({
   const isInSanctuary = piece.stepsMoved < 0
 
   // Centered accurately inside its pedestal socket when in base, or anchored cleanly inside the track tile
-  const anchorY = isInSanctuary ? '-52%' : '-58%'
+  const anchorY = isInSanctuary ? '-52%' : '-50%'
 
   return (
     <button

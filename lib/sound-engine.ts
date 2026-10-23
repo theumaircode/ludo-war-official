@@ -57,7 +57,30 @@ class SoundEngine {
       hOsc.connect(hGain)
       hGain.connect(ctx.destination)
       hOsc.start(now + 0.15 + idx * 0.06)
-      hOsc.stop(now + 2.15)
+      hOsc.stop(now + 2.8)
+    })
+  }
+
+  public playStudioGlitchExit() {
+    const ctx = this.getContext()
+    if (!ctx) return
+    const now = ctx.currentTime
+    const slices = [0, 0.07, 0.14, 0.23, 0.31, 0.42, 0.54]
+    slices.forEach((offset, idx) => {
+      const osc = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.type = idx % 2 === 0 ? 'sawtooth' : 'square'
+      osc.frequency.setValueAtTime(
+        idx % 2 === 0 ? 940 - idx * 95 : 220 + idx * 60,
+        now + offset
+      )
+      osc.frequency.exponentialRampToValueAtTime(65, now + offset + 0.055)
+      gain.gain.setValueAtTime(0.09 * (1 - idx * 0.1), now + offset)
+      gain.gain.exponentialRampToValueAtTime(0.0008, now + offset + 0.06)
+      osc.connect(gain)
+      gain.connect(ctx.destination)
+      osc.start(now + offset)
+      osc.stop(now + offset + 0.065)
     })
   }
 

@@ -149,23 +149,31 @@ export function ArmorySkinsModal({
 
                       {/* Live Preview of all 4 3D Sculpted Chess-Piece Structures */}
                       <div className="grid grid-cols-4 gap-2 mb-4">
-                        {SCULPTED_PIECES.map((sculpt) => (
-                          <div
-                            key={sculpt.id}
-                            className="rounded-lg border border-amber-400/35 bg-gradient-to-b from-slate-900/90 to-black p-1.5 flex flex-col items-center"
-                          >
-                            <div className="w-11 h-14 flex items-center justify-center">
-                              <SculptedChessPiece3D
-                                sculptType={sculpt.id}
-                                faction="crimson"
-                                skinId={skin.id}
-                              />
+                        {SCULPTED_PIECES.map((sculpt, idx) => {
+                          const previewFactions = [
+                            'crimson',
+                            'emerald',
+                            'sapphire',
+                            'gold',
+                          ] as const
+                          return (
+                            <div
+                              key={sculpt.id}
+                              className="rounded-lg border border-amber-400/35 bg-gradient-to-b from-slate-900/90 to-black p-1.5 flex flex-col items-center"
+                            >
+                              <div className="w-11 h-14 flex items-center justify-center">
+                                <SculptedChessPiece3D
+                                  sculptType={sculpt.id}
+                                  faction={previewFactions[idx % 4]}
+                                  skinId={skin.id}
+                                />
+                              </div>
+                              <span className="text-[9px] font-display font-bold pt-1 text-amber-200">
+                                {sculpt.shortLabel}
+                              </span>
                             </div>
-                            <span className="text-[9px] font-display font-bold pt-1 text-amber-200">
-                              {sculpt.shortLabel}
-                            </span>
-                          </div>
-                        ))}
+                          )
+                        })}
                       </div>
                     </div>
 
@@ -323,17 +331,19 @@ export function ArmorySkinsModal({
                         }}
                       >
                         <div className="flex gap-2">
-                          {['Α', 'Ω', 'Δ', 'Σ'].map((r, i) => (
+                          {[0, 1, 2, 3].map((i) => (
                             <div
                               key={i}
-                              className="w-8 h-8 rounded border flex items-center justify-center font-serif font-bold text-xs"
+                              className="w-8 h-8 rounded border flex items-center justify-center"
                               style={{
                                 backgroundColor: skin.tileBase,
                                 borderColor: skin.tileBorder,
-                                color: skin.runeColor,
                               }}
                             >
-                              {r}
+                              <span
+                                className="w-2.5 h-2.5 rotate-45 block"
+                                style={{ backgroundColor: skin.runeColor }}
+                              />
                             </div>
                           ))}
                         </div>
